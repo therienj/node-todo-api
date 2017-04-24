@@ -21,14 +21,14 @@ var Users = mongoose.model('Users', {
   }
 });
 
-var newUsers = new Users({
-  nom: 'Pierre'
-});
-
-newUsers.save().then((doc) => {
-  console.log('Commit 4',JSON.stringify(doc, undefined, 2) );
-}, (e) => {
-  console.log('Impossible de créer le document', e);
-});
+// var newUsers = new Users({
+//   nom: 'Pierre'
+// });
+//
+// newUsers.save().then((doc) => {
+//   console.log('Commit 4',JSON.stringify(doc, undefined, 2) );
+// }, (e) => {
+//   console.log('Impossible de créer le document', e);
+// });
 
  module.export = {Users};
