@@ -1,10 +1,10 @@
 const {ObjectId} = require ('mongodb');
-
+var objectId = new ObjectId;
 const {mongoose} = require('./../server/db/mongoose');
 const {Todo} = require('./../server/models/todo');
 const {Users} = require('./../server/models/users');
 
- var id = '58f915ad59a4df26dc0a36b0';
+ //var id = '58fe22551692c91b3c6c1c31';
 
 // Les 2 manières fonctionnent pour un document, mais 1 retourne un tableau, 2
 // à priviliégié retourne le document comme tel
@@ -35,9 +35,20 @@ const {Users} = require('./../server/models/users');
 //   console.log('Todo by Id', todo);
 // }).catch ((e) => console.log (e));
 
-Users.findById(id).then ((users) => {
-  if(!users) {
-    return console.log('Aucun usager')
+// Users.findById(id).then ((users) => {
+//   if(!users) {
+//     return console.log('Aucun usager')
+//   }
+//   console.log('Usager by Id', users);
+// }).catch ((e) => console.log (e));
+if(objectId.isValid){
+ Todo.findById(id).then ((todo) => {
+   console.log('Id: ',id);
+  if(!todo) {
+    return console.log('Id incorrecte')
   }
-  console.log('Usager by Id', users);
+  console.log('Todo by Id', todo);
 }).catch ((e) => console.log (e));
+}else{
+  return id;
+};
