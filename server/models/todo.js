@@ -1,6 +1,8 @@
 //créer le modèle de notre document(table)
 var mongoose = require('mongoose');
 
+var DateString = Date("YYYY-mm-ddTHH:MM:ssZ");
+
 var Todo = mongoose.model('Todo', {
   text: {
     type: String,

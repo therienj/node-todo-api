@@ -1,5 +1,7 @@
-//créer le modèle de notre document(table)
+//créer le modèle de notre document(record)
 var mongoose = require('mongoose');
+
+var DateString = Date("YYYY-mm-ddTHH:MM:ssZ");
 
 var Users = mongoose.model('Users', {
   nom: {
@@ -21,14 +23,4 @@ var Users = mongoose.model('Users', {
   }
 });
 
-// var newUsers = new Users({
-//   nom: 'Pierre'
-// });
-//
-// newUsers.save().then((doc) => {
-//   console.log('Commit 4',JSON.stringify(doc, undefined, 2) );
-// }, (e) => {
-//   console.log('Impossible de créer le document', e);
-// });
-
- module.export = {Users};
+ module.exports = {Users};
