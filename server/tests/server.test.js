@@ -9,7 +9,9 @@ const todos = [{
   text: 'Premier test todo'
 }, {
   _id: new ObjectId(),
-  text: 'Deuxième test todo'
+  text: 'Deuxième test todo',
+  completed: true,
+  completedAt: DateString
 }];
 
 beforeEach((done) => {
@@ -135,4 +137,46 @@ describe('DELETE /todos/:id', () => {
     .expect(404)
     .end(done);
   });
+});
+
+describe('PATCH /todos/:id', () => {
+  it('doit màj todo', (done) => {
+    var hexId = todos[0]._id.toHexString();
+    var text = 'dans le test Patch';
+    //var DateString = Date("YYYY-mm-ddTHH:MM:ssZ");
+
+    request(app)
+    .patch(`/todos/${hexId}`)
+    .send({
+      text: text,
+      completed: true,
+      completedAt: DateString
+    })
+    .expect(200)
+    .expect((res) => {
+      expect(res.body.todos.text).toBe(text);
+      expect(res.body.todos.completed).toBe(true);
+      expect(res.body.todos.completedAt).toBe(DateString);
+    }).end(done);
+  });
+
+  it('si non complété, completedAt est null', (done) => {
+    var hexId = todos[1]._id.toHexString();
+    var text = '!!!Dans le test Patch!!!';
+
+    request(app)
+    .patch(`/todos/${hexId}`)
+    .send({
+      completed: false,
+      completedAt: null,
+      text: text
+    })
+    .expect(200)
+    .expect((res) => {
+      expect(res.body.todos.text).toBe(text);
+      expect(res.body.todos.completed).toBe(false);
+      expect(res.body.todos.completedAt).toBe(null);
+    }).end(done);
+  });
+
 });
