@@ -9,6 +9,7 @@ global.DateString = Date("YYYY-mm-ddTHH:MM:ssZ");
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
 var {Users} = require('./models/users');
+var {authenticate} = require('./middleware/authenticate');
 
 var app = express();
 
@@ -119,6 +120,9 @@ app.get('/todos', (req, res) => {
   });
 });
 
+app.get('/users/me', authenticate, (req, res) => {
+  res.send(req.user);
+});
 app.listen(port, () => {
   console.log (`Serveur démarré sur le port : ${port}`);
 });
