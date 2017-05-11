@@ -1,15 +1,36 @@
 const {SHA256} = require('crypto-js');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
-var data = {
-  id: 10
-};
+var DateString = Date("YYYY-mm-ddTHH:MM:ssZ");
 
-var token = jwt.sign(data, '123abc');
-console.log('Le token: ',token);
+console.log(`On commence le hashing  à : ${DateString}`);
 
-var verifiedToken = jwt.verify(token, '123abc');
-console.log('Le token vérifié: ',verifiedToken);
+ var password = 'password_4';
+
+// bcrypt.genSalt(10, (err, salt) => {
+//   bcrypt.hash(password, salt, (err, hash) => {
+//     console.log(hash);
+//     DateString = Date("YYYY-mm-ddTHH:MM:ssZ");
+//     console.log(`On terminne le hashing  à : ${DateString}`);
+//   });
+// });
+
+var hashedPassword = '$2a$10$lS4H3W7K8gkM.NgCOinPa..8sVHala3TrdDhvgzB9.7XqPSNMrjKS';
+ bcrypt.compare(password, hashedPassword, (err, res) => {
+   console.log(res);
+ });
+
+
+// var data = {
+//   id: 10
+// };
+//
+// var token = jwt.sign(data, '123abc');
+// console.log('Le token: ',token);
+//
+// var verifiedToken = jwt.verify(token, '123abc');
+// console.log('Le token vérifié: ',verifiedToken);
 
 // var message = 'Je suis l\'utilisateur # 3';
 // var hash = SHA256(message).toString();

@@ -10,6 +10,7 @@ var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
 var {Users} = require('./models/users');
 var {authenticate} = require('./middleware/authenticate');
+var bcrypt = require('bcryptjs');
 
 var app = express();
 
@@ -70,9 +71,25 @@ app.delete('/todos/:id', (req, res) => {
 
 });
 
+//post email
+
+app.post('/users', (req, res) => {
+    var body = _.pick(req.body, ['email', 'password']);
+    var user = new Users(body);
+
+  user.save().then (() => {
+    return user.generateAuthToken();
+  }).then((token) => {
+    res.header('x-auth', token).send();
+  }).catch((e) => {
+    res.status(400).send(e);
+  })
+});
+
 app.patch('/todos/:id', (req, res) =>{
   var id = req.params.id;
-  var body = _.pick(req.body, ['text', 'completed', 'completedAt']);
+  var body = _.pick(req.body, ['_id', 'text', 'completed', 'completedAt']);
+
 
   if (!ObjectId.isValid(id)) {
     return res.status(404).send();
@@ -85,7 +102,7 @@ app.patch('/todos/:id', (req, res) =>{
     body.completedAt = null;
   }
 
-  Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then ((todos) => {
+  Todo.findByIdAndUpdate({_id: id}, {$set: body}, {new: true}).then ((todos) => {
     if (!todos) {
       return res.status(404).send();
     }
@@ -97,19 +114,40 @@ app.patch('/todos/:id', (req, res) =>{
   })
 });
 
-//post email
+app.patch('/users/:email/:password', (req, res) =>{
+  var id = req.params.id;
+  var p_email = req.params.email;
+  var p_psw = req.params.password;
+  var body = _.pick(req.body, ['_id', 'email', 'password']);
 
-app.post('/users', (req, res) => {
-    var body = _.pick(req.body, ['email', 'password']);
-    var user = new Users(body);
+  if (body.email != p_email) {
+    //on pourrait ici offrir à l'usager de créer son compte si il n'existe pas
+    //ou recommencer si il s'est trompé
+    return res.status(404).send();
+  }
 
-  user.save().then (() => {
-    return user.generateAuthToken();
-  }).then((token) => {
-    res.header('x-auth', token).send(user);
-  }).catch((e) => {
-    res.status(400).send(e);
-  })
+  if (body.password != p_psw) {
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(p_psw, salt, (err, hash) =>{
+        res.password = hash;
+        body.password = res.password;
+
+        var query = {email: p_email};
+        Users.findOneAndUpdate(query, {$set: { password: body.password}},{new: true}).then ((users) => {
+          if (!users) {
+            return res.status(404).send();
+          }
+          res.send(users);
+        }).catch ((e) => {
+          res.status(400).send();
+       })
+      });
+    });
+
+} else {
+  console.log('Mot de passe inchangé.');
+  return res.status(400).send();
+}
 });
 
 app.get('/todos', (req, res) => {
@@ -123,6 +161,7 @@ app.get('/todos', (req, res) => {
 app.get('/users/me', authenticate, (req, res) => {
   res.send(req.user);
 });
+
 app.listen(port, () => {
   console.log (`Serveur démarré sur le port : ${port}`);
 });

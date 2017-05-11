@@ -1,24 +1,14 @@
 const expect = require('expect');
 const request = require('supertest');
 const {ObjectId} = require('mongodb');
+
 const {app}= require('./../server');
 const {Todo} = require('./../models/todo');
+const {Users} = require('./../models/users');
+const {users, populateUsers, todos, populateTodos} = require('./seed/seed');
 
-const todos = [{
-  _id: new ObjectId(),
-  text: 'Premier test todo'
-}, {
-  _id: new ObjectId(),
-  text: 'Deuxième test todo',
-  completed: true,
-  completedAt: DateString
-}];
-
-beforeEach((done) => {
-  Todo.remove({}).then(() => {
-    return Todo.insertMany(todos);
-  }).then (() => done());
-});
+beforeEach(populateUsers);
+beforeEach(populateTodos);
 
 describe('POST /todos', () => {
   it('devrait créer un nouveau todo', (done) => {
@@ -72,6 +62,18 @@ describe ('GET/ /todos', () => {
     .end(done);
 });
 });
+
+// describe ('GET/ /users', () => {
+//   it('Doit retourner tous les users', (done) => {
+//     request(app)
+//     .get('/users')
+//     .expect(200)
+//     .expect((res) => {
+//       expect(res.body.users.length).toBe(2);
+//    })
+//     .end(done);
+// });
+// });
 
 //test un id si retour de todo
 describe('GET /todos/:id', () => {
