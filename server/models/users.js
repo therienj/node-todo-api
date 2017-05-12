@@ -68,7 +68,7 @@ UserSchema.methods.toJSON = function () {
   var user = this;
   var userObject = user.toObject();
 
-  return _.pick(userObject, ['_id', 'email']);
+  return _.pick(userObject, ['_id', 'email', 'password', 'tokens']);
 };
 UserSchema.methods.generateAuthToken = function () {
   var user = this;
@@ -98,6 +98,26 @@ UserSchema.statics.findByToken = function (token) {
   });
 };
 
+UserSchema.statics.findByCredentials = function (email, password) {
+  var User = this;
+
+  return User.findOne({email}).then((user) => {
+    if(!user) {
+      return Promise.reject();
+    }
+
+    return new Promise((resolve, reject) => {
+      bcrypt.compare(password,  user.password, (err, res) => {
+        if (res){
+          resolve(user);
+        } else {
+          reject();
+        }
+      });
+    });
+  });
+};
+
 //Avant la sauvegarde on vérifie si le password est changé et on encrypte le nouveau
 UserSchema.pre('save', function (next) {
   var user = this;
@@ -106,13 +126,8 @@ UserSchema.pre('save', function (next) {
   var psw = _.pick(userObject, ['password']);
 
   if (user.email === email['email']) {
-    // console.log('Même courriel');
-    // console.log(user.email);
-    // console.log(email['email']);
 
       if (user.password != psw['password']) {
-        // console.log(user.password);
-        // console.log(psw['password']);
         console.log('Password modifié');
 
         bcrypt.genSalt(10, (err, salt) =>{
@@ -123,15 +138,9 @@ UserSchema.pre('save', function (next) {
       });
 
     } else {
-      //console.log('Mot de passe inchangé.');
-      //  console.log(user.password);
-      //  console.log(psw['password']);
        next();
      }
   } else {
-    // console.log('nouveau courriel');
-    // console.log(user.email);
-    // console.log(email['email']);
     bcrypt.genSalt(10, (err, salt) => {
       bcrypt.hash(user.password, salt, (err, hash) =>{
         user.password = hash;

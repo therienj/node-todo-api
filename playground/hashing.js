@@ -6,7 +6,7 @@ var DateString = Date("YYYY-mm-ddTHH:MM:ssZ");
 
 console.log(`On commence le hashing  à : ${DateString}`);
 
- var password = 'password_4';
+ var password = 'password_2';
 
 // bcrypt.genSalt(10, (err, salt) => {
 //   bcrypt.hash(password, salt, (err, hash) => {
@@ -16,7 +16,7 @@ console.log(`On commence le hashing  à : ${DateString}`);
 //   });
 // });
 
-var hashedPassword = '$2a$10$lS4H3W7K8gkM.NgCOinPa..8sVHala3TrdDhvgzB9.7XqPSNMrjKS';
+var hashedPassword = '$2a$10$8VMXjCmO23nVyc.wWu/NQ.Etf6H36odpTJ0evIa8yeb3mRZJxu932';
  bcrypt.compare(password, hashedPassword, (err, res) => {
    console.log(res);
  });

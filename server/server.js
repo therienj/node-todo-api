@@ -71,21 +71,6 @@ app.delete('/todos/:id', (req, res) => {
 
 });
 
-//post email
-
-app.post('/users', (req, res) => {
-    var body = _.pick(req.body, ['email', 'password']);
-    var user = new Users(body);
-
-  user.save().then (() => {
-    return user.generateAuthToken();
-  }).then((token) => {
-    res.header('x-auth', token).send();
-  }).catch((e) => {
-    res.status(400).send(e);
-  })
-});
-
 app.patch('/todos/:id', (req, res) =>{
   var id = req.params.id;
   var body = _.pick(req.body, ['_id', 'text', 'completed', 'completedAt']);
@@ -160,6 +145,34 @@ app.get('/todos', (req, res) => {
 
 app.get('/users/me', authenticate, (req, res) => {
   res.send(req.user);
+});
+
+//post email
+app.post('/users', (req, res) => {
+    var body = _.pick(req.body, ['email', 'password']);
+    var user = new Users(body);
+
+  user.save().then (() => {
+    return user.generateAuthToken();
+  }).then((token) => {
+    res.header('x-auth', token).send();
+  }).catch((e) => {
+    res.status(400).send(e);
+  })
+});
+// POST /users/login {email, password}
+
+app.post('/users/login', (req, res) => {
+  var body = _.pick(req.body, ['_id','email', 'password']);
+
+    Users.findByCredentials(body.email, body.password).then ((user) => {
+      //res.send(user);
+      return user.generateAuthToken().then((token) => {
+       res.header('x-auth', token).send(user);
+     });
+    }).catch((e) => {
+      res.status(400).send();
+    });
 });
 
 app.listen(port, () => {
