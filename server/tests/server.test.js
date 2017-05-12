@@ -10,47 +10,6 @@ const {users, populateUsers, todos, populateTodos} = require('./seed/seed');
 beforeEach(populateUsers);
 beforeEach(populateTodos);
 
-describe('POST /todos', () => {
-  it('devrait créer un nouveau todo', (done) => {
-    var text = 'Premier test todo';
-
-    request(app)
-    .post('/todos')
-    .send({text})
-    .expect (200)
-    .expect((res) => {
-      expect(res.body.text).toBe(text);
-    })
-    .end((err, res) => {
-      if (err) {
-         return done(err);
-       }
-       Todo.find({text}).then((todos) => {
-         expect(todos.length).toBe(2);
-         expect(todos[0].text).toBe(text);
-         done();
-       }).catch ((e) => done(e));
-     });
-  });
-
-    it('Ne doit pas créer de todo avec du mauvais data', (done) => {
-      request(app)
-        .post ('/todos')
-        .send({})
-        .expect(400)
-        .end((err, res) => {
-          if (err) {
-            return done(err);
-          }
-
-        Todo.find().then((todos) => {
-          expect(todos.length).toBe(2);
-          done();
-        }).catch ((e) => done(e));
-      });
-  });
-});
-
 describe ('GET/ /todos', () => {
   it('Doit retourner tous les todos', (done) => {
     request(app)
@@ -62,18 +21,6 @@ describe ('GET/ /todos', () => {
     .end(done);
 });
 });
-
-// describe ('GET/ /users', () => {
-//   it('Doit retourner tous les users', (done) => {
-//     request(app)
-//     .get('/users')
-//     .expect(200)
-//     .expect((res) => {
-//       expect(res.body.users.length).toBe(2);
-//    })
-//     .end(done);
-// });
-// });
 
 //test un id si retour de todo
 describe('GET /todos/:id', () => {
@@ -181,4 +128,115 @@ describe('PATCH /todos/:id', () => {
     }).end(done);
   });
 
+});
+
+describe ('GET /users/me', () => {
+  it('Doit retourner l usager selon son token', (done) => {
+    request(app)
+    .get('/users/me')
+    .set('x-auth', users[0].tokens[0].token)
+    .expect(200)
+    .expect((res) => {
+      expect(res.body._id).toBe(users[0]._id.toHexString());
+      expect(res.body.email).toBe(users[0].email);
+   })
+    .end(done);
+});
+
+  it('retourne 401 si non authentifier', (done) => {
+    request(app)
+      .get('/users/me')
+      .expect(401)
+      .expect((res) => {
+         expect(res.body).toEqual({});
+      })
+      .end(done);
+  });
+});
+
+describe('POST /todos', () => {
+  it('devrait créer un nouveau todo', (done) => {
+    var text = 'Premier test todo';
+
+    request(app)
+    .post('/todos')
+    .send({text})
+    .expect (200)
+    .expect((res) => {
+      expect(res.body.text).toBe(text);
+    })
+    .end((err, res) => {
+      if (err) {
+         return done(err);
+       }
+       Todo.find({text}).then((todos) => {
+         expect(todos.length).toBe(2);
+         expect(todos[0].text).toBe(text);
+         done();
+       }).catch ((e) => done(e));
+     });
+  });
+
+    it('Ne doit pas créer de todo avec du mauvais data', (done) => {
+      request(app)
+        .post ('/todos')
+        .send({})
+        .expect(400)
+        .end((err, res) => {
+          if (err) {
+            return done(err);
+          }
+
+        Todo.find().then((todos) => {
+          expect(todos.length).toBe(2);
+          done();
+        }).catch ((e) => done(e));
+      });
+  });
+});
+
+describe('POST /users', () => {
+  it('Doit créer un usager', (done) => {
+    var email = 'exemple@abc.com';
+    var password = '123mb!';
+
+    request(app)
+      .post('/users')
+      .send({email, password})
+      .expect(200)
+      .expect((res) => {
+        expect(res.header['x-auth']).toExist();
+        expect(res.body._id).toExist();
+        expect(res.body.email).toBe(email);
+      })
+      .end((err, res) => {
+        Users.findOne({email}).then ((users) => {
+          expect(users).toExist();
+          expect(users.password).toNotBe(password);
+          done();
+        });
+      });
+  });
+
+  it('Retourne une erreur de validation', (done) => {
+    request(app)
+      .post('/users')
+      .send({
+        email: 'somethings',
+        password: '123'
+      })
+      .expect(400)
+      .end(done);
+    });
+
+  it('Ne doit pas créer de doublons email', (done) => {
+    request(app)
+    .post('/users')
+    .send({
+      email: users[0].email,
+      password: 'Password123!'
+    })
+    .expect(400)
+    .end(done);
+  });
 });

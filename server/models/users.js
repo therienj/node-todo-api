@@ -42,6 +42,7 @@ var UserSchema = new mongoose.Schema({
     trim: true,
     unique: true,
     validate: {
+      isAsync: true,
       validator: validator.isEmail,
       message: '{value} n\'est pas valide'
     }
