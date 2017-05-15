@@ -11,7 +11,7 @@
 
 const users = [{
   _id: userOneId,
-  email: 'jacques.therien@videotron.ca',
+  email: 'abc@mail.com',
   password: 'userOnePass',
   tokens: [{
     access: 'auth',
