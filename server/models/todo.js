@@ -17,11 +17,11 @@ var Todo = mongoose.model('Todo', {
   completedAt: {
     type: String,
     default: DateString
+  }, _creator: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true 
   }
 });
 
-// var newTodo = new Todo({
-//   texte: 'Date en String'
-// });
 
 module.exports = {Todo};
